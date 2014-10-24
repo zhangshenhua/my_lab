@@ -8,7 +8,10 @@
 # Copyright:   (c) shenhu1x 2014
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
-import os,sys
+import os
+import sys
+
+
 def main():
     filename = sys.argv[1]
     with open(filename, "w") as f:

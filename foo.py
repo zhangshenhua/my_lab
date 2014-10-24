@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
 # Name:        module1
-# Purpose:
+# Purpose:     find command line from Scenarios
 #
 # Author:      shenhu1x
 #
@@ -22,7 +22,7 @@ def get_cmdlines(filename):
 
 
 print_addition = 0
-list_search_for = ['CameraDesktopBasicControl.py']
+list_search_for = ['RunStoreAppAutoTest.py ']
 
 def main():
     result_list = []
