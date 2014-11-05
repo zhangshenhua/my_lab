@@ -17,6 +17,7 @@ import datetime
 import inspect
 import threading
 import datetime
+
 import private_lib
 
 g_logger = private_lib.Logger()
@@ -53,35 +54,75 @@ def enum(**enums):
     return type('Enum', (), enums)
 
 
+"""
+common_lib.watch_start()
+clean_previous_driver()
+common_lib.watch_stop_and_print('clean_previous_driver')
+"""
+
+
+def print_cmd_args():
+    for i in range(len(sys.argv)):
+        g_logger.info('argv{}: {}'.format(i, sys.argv[i]))
+
+
+start_time = 0
+
+
+def watch_start():
+    global start_time
+    start_time = time.time()
+    g_logger.info("%.3f start_time." % (start_time))
+
+
+def watch_stop_and_print(msg):
+    global start_time
+    stop_time = time.time()
+    g_logger.info("%.3f stop_time." % (stop_time))
+    g_logger.info('"{0}" duration: {1}s'.format(msg, stop_time - start_time))
+
+
 def call_os_system(cmd_line):
+    g_logger.info('os.system cmd_line: %s' % cmd_line)
     result = os.system(cmd_line)
-    print 'result:', result
+    g_logger.info('result: %s' % result)
     return result
 
 
 def call_popen_with_timeout(cmd_line, timeout=120, use_call=True, use_shell=True, cwd=None):
     if use_call:
         cmd_line = "call " + cmd_line
-    print 'timeout value:', timeout
-    process = subprocess.Popen(cmd_line, shell=use_shell, cwd=cwd)
+    g_logger.info('subprocess.Popen cmd_line: %s' % cmd_line)
+    g_logger.info('timeout value:', timeout)
+    p = subprocess.Popen(cmd_line, shell=use_shell, cwd=cwd, stdout=subprocess.PIPE)
     while True:
         time.sleep(1)
         timeout = timeout - 1
-        retval = process.poll()
+        g_logger.original(p.stdout.read())
+        retval = p.poll()
         if retval is not None:
             break
         elif timeout <= 0:
-            call_os_system('shutdown -r -t 0')
-    print 'result:', process.returncode
-    return process.returncode
+            g_logger.error('command line timeout! will be reboot!', 'cmd_line: %s', cmd_line)
+            call_popen_with_timeout('shutdown -r -t 0')
+    g_logger.info('result: %s' % p.returncode)
+    return p.returncode
+
+
+def call_shell_get_stdout(cmd_line):
+    g_logger.info('subprocess.Popen cmd_line: %s' % cmd_line)
+    p = subprocess.Popen(cmd_line, stdout=subprocess.PIPE, shell=True)
+    return p.communicate()[0]
 
 
 def run_command_with_log(target, filename='result.log', timeout=120):
     # dir>a.txt|type a.txt
     filename = '"{}"'.format(filename)
-    return call_popen_with_timeout(
-        target + ' > ' + filename + ' 2>&1',
-        timeout=timeout)  # + '|type ' + filename
+    return call_popen_with_timeout(target + ' > ' + filename + ' 2>&1', timeout=timeout)
+
+
+def get_time():
+    return time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
 
 
 def make_cmdline(*args):
@@ -119,6 +160,9 @@ def test():
     g_logger.case_pass()
     g_logger.case_fail('something error. %i', -2)
     '''
+    # os.chdir(r'c:/tmp')
+    print call_popen_with_timeout('python test.py')
+
 
 if __name__ == '__main__':
     test()

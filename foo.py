@@ -12,41 +12,39 @@
 import os
 from xml.etree.ElementTree import ElementTree
 
-def get_cmdlines(filename):
-    try:
-        tree = ElementTree()
-        tree.parse(filename)
-        return [x.text.strip() for x in tree.findall('*//Parameters')]
-    except:
-        return []
+
+# ROOT_PATH = r'\\ccr\ec\proj\iag\mcg\SH_TSIE\AZ\TSIE_QA_TEST\CHT\batTests'
+ROOT_PATH = r'\\ccr\ec\proj\iag\mcg\SH_TSIE\AZ\TSIE_QA_TEST\CHT\batTests\Check_In_Test'
 
 
-print_addition = 0
-list_search_for = ['RunStoreAppAutoTest.py ']
+def find_scenarios(keywords=[]):
+    for (root, dirs,files ) in os.walk(ROOT_PATH):
+        if 'Scenarios' in root:
+            for file in files:
+                file_path = os.path.join(root, file)
+                if all([keyword in file_path for keyword in keywords]):
+                    yield file_path
+
+
+def find_cmdlines(filename):
+    tree = ElementTree()
+    tree.parse(filename)
+    for cmd_line in [x.text for x in tree.findall('*//Parameters')]:
+        yield cmd_line
+
 
 def main():
-    result_list = []
     cmdline_set = set()
-    for (root, dirs,files ) in os.walk(r'\\ccr\ec\proj\iag\mcg\SH_TSIE\AZ\TSIE_QA_TEST\CHT\batTests'):
-        if 'Camera' in root and 'Scenarios' in dirs:
-            for (root2,dirs2,files2) in os.walk(os.path.join(root,'Scenarios')):
-                for file in files2:
-                    cur_filename = os.path.join(root2,file)
-                    result_list.append(cur_filename)
-                    tmp_set = get_cmdlines(cur_filename)
-                    tmp_set = filter(lambda cmdline:len(list_search_for)==0 or len([1 for search_item in list_search_for if str.lower(search_item) in str.lower(cmdline)])>0, tmp_set)
-                    cmdline_set = cmdline_set.union(tmp_set)
-                    if print_addition:
-                        print cur_filename
-                        for cmdline in tmp_set:
-                            print '\t',cmdline
-
+    for path in find_scenarios(['Camera']):
+        print path
+        for cmd_line in find_cmdlines(path):
+            cmdline_set.add(cmd_line)
+            print '    ' + str(cmd_line)
     print 'cmd_lines={'
     for cmdline in sorted(cmdline_set):
         print cmdline
-
     print '}'
-    ##
+
 
 if __name__ == '__main__':
-    main()
+        main()
