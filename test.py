@@ -13,6 +13,13 @@ import time
 import common_lib
 
 
+def f(n):
+    return reduce(lambda x, y: x * y ,range(1, n+1))
+
+
+def s(n):
+    return map(lambda x: f(x), range(1,n+1))
+
 def main():
     """
     g_logger.setid('TEST_CASE_ID')
@@ -37,9 +44,10 @@ def main():
     g_logger.case_pass()
     g_logger.case_fail()
     """
+    '''
     for i in range(0, 1000):
         sys.stdout.write(str(i) * 4097 + '\n')
         time.sleep(0.001)
-
+    '''
 if __name__ == '__main__':
     main()

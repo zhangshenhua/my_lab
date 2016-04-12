@@ -53,6 +53,7 @@ class Logger(logging.getLoggerClass()):
         self.__fh = logging.FileHandler("{0}.log".format(os.path.join(Logger.log_dir, 'default')))
         self.addHandler(self.__fh)
         self.__ch = logging.StreamHandler()
+        self.__ch.setLevel(logging.WARN)
         self.addHandler(self.__ch)
 
     def setid(self, str_id):
@@ -71,7 +72,13 @@ class Logger(logging.getLoggerClass()):
         str_lvl in {VERBOSE, INFO, WARNING, ERROR, RESULT}
         """
         dict_frame = get_head_info(3)
-        self.original(
+        self.log(
+            {
+                'VERBOSE': logging.DEBUG,
+                'INFO': logging.INFO,
+                'WARNING': logging.WARNING,
+                'ERROR': logging.ERROR
+            }[category],
             '{time}{category}{file}{method}{line}{primary}{optional}'.format(
                 time='[{}]'.format(fmt_now()),
                 category='[{}]'.format(category),
@@ -89,7 +96,8 @@ class Logger(logging.getLoggerClass()):
         [mm/dd/yyyy-hh:mm:ss.ms][RESULT][File:xxx.py][Method:xxx_xxx][Line:xx][Result: pass]
         """
         dict_frame = get_head_info(3)
-        self.original(
+        self.log(
+            logging.WARNING,
             '{time}{category}{file}{method}{line}{result}'.format(
                 time='[{}]'.format(fmt_now()),
                 category='[RESULT]',
