@@ -1,0 +1,7 @@
+*~
+*.pyc
+*.swp
+\#*\#
+\.emacs\.desktop
+\.emacs\.desktop\.lock 
+\.ropeproject/

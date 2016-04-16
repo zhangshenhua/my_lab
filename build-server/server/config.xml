@@ -1,0 +1,133 @@
+<?xml version="1.0" ?> 
+<config>
+  <system>
+    <root_dir>/build_server</root_dir>
+    <repos_dir>repos</repos_dir>
+    <out_dir>out</out_dir>
+  </system>
+  
+  <softwares>
+    <vgt_linux_kernel>    
+      <git>git://vgt.sh.intel.com/linux-vgt.git</git>
+      <repo_dir>vgt-linux</repo_dir>
+      <out_dir>vgt-linux</out_dir>
+      <make_commands>
+cd ~/workspace/build-server-etc/
+git pull
+cd $WORK_DIR
+cp ~/workspace/build-server-etc/grub.sh .
+cp ~/workspace/build-server-etc/vgt_linux_kernel_install.sh .
+make mrproper;
+cp config-3.4-dom0 .config;
+make oldconfig;
+make -j8;
+      </make_commands>
+      <install_commands>
+sh vgt_linux_kernel_install.sh
+sh grub.sh
+      </install_commands>
+    </vgt_linux_kernel>
+
+    <vgt_linux_kernel_for_rpm>    
+      <git>git://vgt.sh.intel.com/linux-vgt.git</git>
+      <repo_dir>vgt-linux</repo_dir>
+      <out_dir>vgt-linux-rpm</out_dir>
+      <zip_contains>*.rpm grub.sh</zip_contains>
+      <make_commands>
+cd ~/workspace/build-server-etc/
+git pull
+cd $WORK_DIR
+cp ~/workspace/build-server-etc/kernel.spec.tmpl .
+cp ~/workspace/build-server-etc/makekernelrpm.sh .
+cp ~/workspace/build-server-etc/grub.sh .
+make mrproper;
+cp config-3.4-dom0 .config;
+make oldconfig;
+make -j8;
+sh makekernelrpm.sh
+      </make_commands>
+      <install_commands>
+rpm -ivh vgt_kernel-3.4.0+-1.x86_64.rpm
+sh grub.sh
+      </install_commands>
+    </vgt_linux_kernel_for_rpm>
+
+    <vgt_xen>    
+      <git>git://vgt.sh.intel.com/xen-unstable.git</git>
+      <repo_dir>vgt-xen</repo_dir>
+      <out_dir>vgt-xen</out_dir>
+      <make_commands>
+make clean;
+make xen tools;
+      </make_commands>
+      <install_commands>
+make uninstall;
+make install-tools
+cp xen/xen.gz /boot/xen-vgt.gz
+      </install_commands>
+    </vgt_xen>
+
+    <vgt_xen_for_rpm>    
+      <git>git://vgt.sh.intel.com/xen-unstable.git</git>
+      <repo_dir>vgt-xen</repo_dir>
+      <out_dir>vgt-xen-rpm</out_dir>
+      <zip_contains>*.rpm</zip_contains>
+      <make_commands>
+cd ~/workspace/build-server-etc/
+git pull
+cd $WORK_DIR
+cp ~/workspace/build-server-etc/xen.spec.tmpl .
+cp ~/workspace/build-server-etc/makexenrpm.sh .
+make clean;
+make xen tools;
+sh makexenrpm.sh
+      </make_commands>
+      <install_commands>
+rpm -ivh xen-4.2-2.x86_64.rpm
+      </install_commands>
+    </vgt_xen_for_rpm>
+
+    <init_env>    
+      <git>git@10.239.131.32:~/init-env.git</git>
+      <repo_dir>init-env</repo_dir>
+      <out_dir>init-env</out_dir>
+      <make_commands>
+	
+      </make_commands>
+      <install_commands>
+./run_once.sh
+      </install_commands>
+    </init_env>
+
+    <guestOS1>    
+      <git>git@10.239.131.32:~/install-guestOS.git</git>
+      <repo_dir>install-guestOS</repo_dir>
+      <out_dir>install-guestOS</out_dir>
+      <make_commands>
+	
+      </make_commands>
+      <install_commands>
+sh install.sh
+      </install_commands>
+    </guestOS1>
+
+    <all>    
+      <git>git@10.239.131.32:~/install-all.git</git>
+      <repo_dir>install-all</repo_dir>
+      <out_dir>install-all</out_dir>
+      <make_commands>
+	
+      </make_commands>
+      <install_commands>
+sh install.sh
+      </install_commands>
+    </all>
+    
+    <test1>
+      <install_commands>
+	echo Hello, world
+      </install_commands>
+    </test1>
+
+  </softwares>
+</config>
